@@ -6,7 +6,7 @@ __author__ = "Marcos Aurelio Barranco"
 __copyright__ = "Copyright 2016, The MIT License (MIT)"
 __credits__ = ["Marcos Aurelio Barranco", ]
 __license__ = "MIT"
-__version__ = "1.2"
+__version__ = "1.3"
 __maintainer__ = "Marcos Aurelio Barranco"
 __email__ = ""
 __status__ = "Production"
@@ -33,23 +33,21 @@ __status__ = "Production"
 
 
 import locale
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 
 def ln(x):
     n = 1000.0
     return n * ((x ** (1 / n)) - 1)
 
-def financial_functions(n=0, i=0, pv=0, pmt=0, fv=0):
+
+def main(fct, n=0, i=0, pv=0, pmt=0, fv=0):
     '''
     1. to calculate "n" the followings are required: i, pv and fv
-
        to calculate "i" the followings are required: n, pv, and fv
-
        to calculate "PV" the followings are required: n, i, and fv
-
        to calculate "PMT" the followings are required: n, i and fv
                                                    OR  n, i and pv
-
        to calculate "FV" the followings are required: n, i and pv
 
     2. The PV value should only be negative on the HP 12C because
@@ -57,57 +55,79 @@ def financial_functions(n=0, i=0, pv=0, pmt=0, fv=0):
        disbursement of cash flow is considered negative
 
     3. The HP 12C rounds off the periods in months.
-       HP 12 C      --> FV=1638.37, PV=1000, i=4.20
+       HP 12 C      --> FV=1638.37, PV=1000, i=4.20%
                         n equal to 12 months
 
        This function doesn't round it
-       --> FinancialFunctions(i=4.2, pv=1000, fv=1638.37)
+       --> main(fct='n', n=0, i=4.199987193598798, pv=1000, pmt=0, fv=1638.37)
        n equal to 12.00267993234954 months/days
 
     4. The calculations were double checked with the HP 12C
        Coded by Marcos Aurelio Barranco
     '''
 
-    if n == 0 and fv > 0 and pv > 0 and i > 0:
-        nCalc = valoreio.ln(fv / pv) / valoreio.ln(1 + (i / 100))
-        print("Periods(n) = {}".format(nCalc))
+    if fct == 'n' and n == 0 and fv > 0 and pv > 0 and i > 0 and pmt == 0:
+        # Periods(n)
+        # to i=4.199987193598798, pv=1000 and fv=1638.37 it returns 12.002715788466276 months
+        nCalc = ln(fv / pv) / ln(1 + (i / 100))
+        return "Periods(n) :", nCalc
 
-    if i == 0 and fv > 0 and pv > 0 and n > 0:
+    if fct == 'i' and i == 0 and fv > 0 and pv > 0 and n > 0 and pmt == 0:
+        # Interest rate(i)
+        # to n=12, pv=1000 and fv=1638.37 it returns 4.199987193598798%
         iCalc = ((fv / pv)**(1 / n)) - 1
         locale.setlocale(locale.LC_ALL, '')
-        print("Interest rate(i) = {}%".format(iCalc * 100))
+        return "Interest rate(i) %: ", iCalc * 100
 
-    if pv == 0 and fv > 0 and i > 0 and n > 0:
+    if fct == 'pv' and pv == 0 and fv > 0 and i > 0 and n > 0 and pmt == 0:
+        # Present value(PV)
+        # to pv=0, fv=1638.37, i=4.199987193598798, n=12 it returns 1000
         pvCalc = fv / ((1 + (i / 100))**n)
         locale.setlocale(locale.LC_ALL, '')
-        print("Present value(PV) = {}".format(
-            locale.currency(pvCalc, grouping=True, symbol=True)))
+        return "Present value(PV) :", locale.currency(
+            pvCalc, grouping=True, symbol=True)
 
-    if pmt == 0 and fv > 0 and i > 0 and n > 0:
+    if fct == 'pmt-fv' and pmt == 0 and fv > 0 and i > 0 and n > 0 and pv == 0:
+        # Periodic Payment Amount(PMT)
+        # to pmt=0, fv=1638.37, i=4.199987193598798, n=0 it returns XXX
         CalcUpFV = fv
         CalcDownFV = (i / 100) / (((1 + (i / 100))**n) - 1)
         pmtCalcFV = CalcUpFV * CalcDownFV
-        print("Periodic Payment Amount(PMT) = {}".format(
-            locale.currency(pmtCalcFV, grouping=True, symbol=True)))
-
-    if pmt == 0 and pv > 0 and i > 0 and n > 0:
+        return "Periodic Payment Amount(PMT-FV>0) :", locale.currency(
+            pmtCalcFV, grouping=True, symbol=True)
+            
+    if fct == 'pmt-pv' and pmt == 0 and pv > 0 and i > 0 and n > 0 and fv == 0:
+        # Periodic Payment Amount(PMT)
         CalcUpPV = pv
         CalcDownPV = ((
             (i / 100) * ((1 + (i / 100))**n)) / (((1 + (i / 100))**n) - 1))
         pmtCalcPV = CalcUpPV * CalcDownPV
-        print("Periodic Payment Amount(PMT) = {}".format(
-            locale.currency(pmtCalcPV, grouping=True, symbol=True)))
+        return "Periodic Payment Amount(PMT-PV>0)", locale.currency(
+            pmtCalcPV, grouping=True, symbol=True)
 
-    if fv == 0 and pv > 0 and i > 0 and n > 0:
+    if fct == 'fv' and fv == 0 and pv > 0 and i > 0 and n > 0 and pmt == 0:
+        # Future value(FV)
+        # to n=12, i=4.199987193598798, pv=1000, pmt=0 and fv=0 it returns 1638.37
         fvCalc = pv * ((1 + (i / 100))**n)
         locale.setlocale(locale.LC_ALL, '')
-        print("Future value(FV) = {}".format(
-            locale.currency(fvCalc, grouping=True, symbol=True)))
+        return "Future value(FV)", locale.currency(
+            fvCalc, grouping=True, symbol=True)
 
 
 if __name__ == '__main__':
     try:
-        print(financial_functions(n=12, pv=1000, fv=1638.37))
+        retorno, value = main(fct='n', n=0, i=4.199987193598798, pv=1000, pmt=0, fv=1638.37)
+        print(retorno, value)
+        retorno, value = main(fct='i', n=12, i=0, pv=1000, pmt=0, fv=1638.37)
+        print(retorno, value)
+        retorno, value = main(fct='pv', n=12, i=4.199987193598798, pv=0, pmt=0, fv=1638.37)
+        print(retorno, value)
+        retorno, value = main(fct='pmt-fv', n=12, i=4.199987193598798, pv=0, pmt=0, fv=1638.37)
+        print(retorno, value)
+        retorno, value = main(fct='pmt-pv', n=12, i=4.199987193598798, pv=1000, pmt=0, fv=0)
+        print(retorno, value)
+        retorno, value = main(fct='fv', n=12, i=4.199987193598798, pv=1000, pmt=0, fv=0)
+        print(retorno, value)
 
     except Exception as e:
         raise Exception("ErrValFinFunc-1 : {0}".format(e))
