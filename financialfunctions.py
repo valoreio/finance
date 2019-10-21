@@ -77,7 +77,7 @@ def main(fct, n=0, i=0, pv=0, pmt=0, fv=0):
         # to n=12, pv=1000 and fv=1638.37 it returns 4.199987193598798%
         iCalc = ((fv / pv)**(1 / n)) - 1
         locale.setlocale(locale.LC_ALL, '')
-        return "Interest rate(i) %: ", iCalc * 100
+        return "Interest rate(i) %:", iCalc * 100
 
     if fct == 'pv' and n > 0 and i > 0 and fv > 0:
         # Present value(PV)
@@ -103,7 +103,7 @@ def main(fct, n=0, i=0, pv=0, pmt=0, fv=0):
         CalcDownPV = ((
             (i / 100) * ((1 + (i / 100))**n)) / (((1 + (i / 100))**n) - 1))
         pmtCalcPV = CalcUpPV * CalcDownPV
-        return "Periodic Payment Amount(PMT-PV>0)", locale.currency(
+        return "Periodic Payment Amount(PMT-PV>0) :", locale.currency(
             pmtCalcPV, grouping=True, symbol=True)
 
     if fct == 'fv' and n > 0 and i > 0 and pv > 0:
@@ -111,7 +111,7 @@ def main(fct, n=0, i=0, pv=0, pmt=0, fv=0):
         # to n=12, i=4.199987193598798%, pv=1000 it returns 1638.37
         fvCalc = pv * ((1 + (i / 100))**n)
         locale.setlocale(locale.LC_ALL, '')
-        return "Future value(FV)", locale.currency(
+        return "Future value(FV) :", locale.currency(
             fvCalc, grouping=True, symbol=True)
 
 
@@ -129,6 +129,19 @@ if __name__ == '__main__':
         print(retorno, value)
         retorno, value = main(fct='fv', n=12, i=4.199987193598798, pv=1000)
         print(retorno, value)
+
+        '''
+        python3 financialfunctions.py
+        
+        you'll receive these ones:
+
+        Periods(n) : 12.002715788466276
+        Interest rate(i) %:  4.199987193598798
+        Present value(PV) : R$ 1.000,00
+        Periodic Payment Amount(PMT-FV>0) : R$ 107,79
+        Periodic Payment Amount(PMT-PV>0) : R$ 107,79
+        Future value(FV) : R$ 1.638,37
+        '''
 
     except Exception as e:
         raise Exception("ErrValFinFunc-1 : {0}".format(e))
