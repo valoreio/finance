@@ -11,26 +11,6 @@ __maintainer__ = "Marcos Aurelio Barranco"
 __email__ = ""
 __status__ = "Production"
 
-'''
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH
-# THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-'''
-
 
 import locale
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
@@ -41,7 +21,7 @@ def ln(x):
     return n * ((x ** (1 / n)) - 1)
 
 
-def main(fct, n=0, i=0, pv=0, pmt=0, fv=0):
+def main(n=0, i=0, pv=0, pmt=0, fv=0):
     '''
     1. to calculate "n" the followings are required: i, pv and fv
        to calculate "i" the followings are required: n, pv, and fv
@@ -55,93 +35,78 @@ def main(fct, n=0, i=0, pv=0, pmt=0, fv=0):
        disbursement of cash flow is considered negative
 
     3. The HP 12C rounds off the periods in months.
-       HP 12 C      --> FV=1638.37, PV=1000, i=4.199987193598798%
+       HP 12 C      --> FV=1.126.825,03, PV=1000000, i=1%
                         n equal to 12 months
 
-       This function doesn't round it
-       --> main(fct='n', i=4.199987193598798, pv=1000, fv=1638.37)
-       n equal to 12.00267993234954 months/days
+    3.1. This function doesn't round it
+       --> main(i=1, pv=1000000, fv=1126825.03)
+       n equal to 12.000654059154352 months/days
+
+       according to 3.1 you'll receive this one:
+       0 n 12.000654059154352
+       where:
+       0 is just the index inside the python dictionary
+       n is Periods
+       12.000654059154352 is months/days
 
     4. The calculations were double checked with the HP 12C
        Coded by Marcos Aurelio Barranco
     '''
 
-    if fct == 'n' and i > 0 and pv > 0 and fv > 0:
-        # Periods(n)
-        # to i=4.199987193598798%, pv=1000 and fv=1638.37 it returns 12.002715788466276 months
-        nCalc = ln(fv / pv) / ln(1 + (i / 100))
-        return "Periods(n) :", nCalc
+    d = {}
 
-    if fct == 'i' and n > 0 and pv > 0 and fv > 0:
-        # Interest rate(i)
-        # to n=12, pv=1000 and fv=1638.37 it returns 4.199987193598798%
+    if i > 0 and pv > 0 and fv > 0:
+        # n = Periods
+        nCalc = ln(fv / pv) / ln(1 + (i / 100))
+        d['n'] = nCalc
+
+    if n > 0 and pv > 0 and fv > 0:
+        # i = Interest rate
         iCalc = ((fv / pv)**(1 / n)) - 1
         locale.setlocale(locale.LC_ALL, '')
-        return "Interest rate(i) %:", iCalc * 100
+        d['i'] = iCalc * 100
 
-    if fct == 'pv' and n > 0 and i > 0 and fv > 0:
-        # Present value(PV)
-        # to fv=1638.37, i=4.199987193598798%, n=12 it returns 1000
+    if n > 0 and i > 0 and fv > 0:
+        # PV = Present value
         pvCalc = fv / ((1 + (i / 100))**n)
         locale.setlocale(locale.LC_ALL, '')
-        return "Present value(PV) :", locale.currency(
+        d['PV'] = locale.currency(
             pvCalc, grouping=True, symbol=True)
 
-    if fct == 'pmt-fv' and n > 0 and i > 0 and fv > 0:
-        # Periodic Payment Amount(PMT) when FV > 0
-        # to fv=1638.37, i=4.199987193598798%, n=12 it returns 107.79
+    if n > 0 and i > 0 and fv > 0:
+        # PMTFV_GT0 = Periodic Payment Amount when FV > 0
         CalcUpFV = fv
         CalcDownFV = (i / 100) / (((1 + (i / 100))**n) - 1)
         pmtCalcFV = CalcUpFV * CalcDownFV
-        return "Periodic Payment Amount(PMT-FV>0) :", locale.currency(
+        d['PMTFV_GT0'] = locale.currency(
             pmtCalcFV, grouping=True, symbol=True)
-            
-    if fct == 'pmt-pv' and n > 0 and i > 0 and pv > 0:
-        # Periodic Payment Amount(PMT) when PV > 0
-        # to pv=1000, i=4.199987193598798%, n=12 it returns 107.79
+
+    if n > 0 and i > 0 and pv > 0:
+        # PMTPV_GT0 = Periodic Payment Amount when PV > 0
         CalcUpPV = pv
         CalcDownPV = ((
             (i / 100) * ((1 + (i / 100))**n)) / (((1 + (i / 100))**n) - 1))
         pmtCalcPV = CalcUpPV * CalcDownPV
-        return "Periodic Payment Amount(PMT-PV>0) :", locale.currency(
+        d['PMTPV_GT0'] = locale.currency(
             pmtCalcPV, grouping=True, symbol=True)
 
-    if fct == 'fv' and n > 0 and i > 0 and pv > 0:
+    if n > 0 and i > 0 and pv > 0:
         # Future value(FV)
-        # to n=12, i=4.199987193598798%, pv=1000 it returns 1638.37
         fvCalc = pv * ((1 + (i / 100))**n)
         locale.setlocale(locale.LC_ALL, '')
-        return "Future value(FV) :", locale.currency(
+        d['FV'] = locale.currency(
             fvCalc, grouping=True, symbol=True)
+
+    return d
 
 
 if __name__ == '__main__':
     try:
-        retorno, value = main(fct='n', i=4.199987193598798, pv=1000, fv=1638.37)
-        print(retorno, value)
-        retorno, value = main(fct='i', n=12, pv=1000, fv=1638.37)
-        print(retorno, value)
-        retorno, value = main(fct='pv', n=12, i=4.199987193598798, fv=1638.37)
-        print(retorno, value)
-        retorno, value = main(fct='pmt-fv', n=12, i=4.199987193598798, fv=1638.37)
-        print(retorno, value)
-        retorno, value = main(fct='pmt-pv', n=12, i=4.199987193598798, pv=1000)
-        print(retorno, value)
-        retorno, value = main(fct='fv', n=12, i=4.199987193598798, pv=1000)
-        print(retorno, value)
-
-        '''
-        python3 financialfunctions.py
-        
-        you'll receive these ones:
-
-        Periods(n) : 12.002715788466276
-        Interest rate(i) %:  4.199987193598798
-        Present value(PV) : R$ 1.000,00
-        Periodic Payment Amount(PMT-FV>0) : R$ 107,79
-        Periodic Payment Amount(PMT-PV>0) : R$ 107,79
-        Future value(FV) : R$ 1.638,37
-        '''
+        # retorna um dicionário python (key, value)
+        d = main(i=1, pv=1000000, fv=1126825)
+        for i, j in enumerate(d):
+            # index, key, value
+            print(i, j, d[j])
 
     except Exception as e:
         raise Exception("ErrValFinFunc-1 : {0}".format(e))
