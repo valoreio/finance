@@ -17,8 +17,7 @@ locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 
 def ln(x):
-    n = 1000
-    return n * ((x ** (1 / n)) - 1)
+    return 1000 * ((x ** (1 / 1000)) - 1)
 
 
 def main(n=0, i=0, pv=0, pmt=0, fv=0):
