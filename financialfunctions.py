@@ -12,8 +12,16 @@ __email__ = ""
 __status__ = "Production"
 
 
+'''
+input: n, i, pv, pmt, fv
+calc: Financial functions
+return: dict and json
+'''
+
+
 import locale
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+import json
 
 
 def ln(x):
@@ -96,13 +104,20 @@ def main(n=0, i=0, pv=0, pmt=0, fv=0):
         d['FV'] = locale.currency(
             fvCalc, grouping=True, symbol=True)
 
-    return d
+    js = json.dumps(d, ensure_ascii=False)
+
+    # dictionary and json
+    return d, js
 
 
 if __name__ == '__main__':
     try:
-        # retorna um dicionário python (key, value)
-        d = main(i=1, pv=1000000, fv=1126825)
+
+        d, js = main(i=1, pv=1000000, fv=1126825)
+
+        print(d) # Dict
+        print(js) # json
+        
         for i, j in enumerate(d):
             # index, key, value
             print(i, j, d[j])
