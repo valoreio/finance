@@ -4,7 +4,7 @@
 to calculate "n" the followings are required: i, pv and fv <br />
 to calculate "i" the followings are required: n, pv, and fv <br />
 to calculate "PV" the followings are required: n, i, and fv <br />
-to calculate "PMT" the followings are required: n, i and fv OR  n, i and pv <br />
+to calculate "PMT" the followings are required: n, i and fv OR n, i and pv <br />
  to calculate "FV" the followings are required: n, i and pv <br />
 
 ## Remarks:
@@ -13,4 +13,5 @@ to calculate "PMT" the followings are required: n, i and fv OR  n, i and pv <br 
 > {'n': 12.000654059154352} <br />
 > {"n": 12.000654059154352} <br />
 > the first line is a Python Dictionary and the second line is a JSON
-> 3. The main idea here is to use the Python code as a library. I mean, passing values and catching the results by the return
+> 3. The main idea here is to use the Python code as a library. <br />
+> I mean, passing values and catching the results (in Dict and Json) by the return to handle it as you prefer.
