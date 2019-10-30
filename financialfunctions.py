@@ -118,9 +118,9 @@ if __name__ == '__main__':
         print(d) # Dict
         print(js) # json
         
-        for i, j in enumerate(d):
-            # index, key, value
-            print(i, j, d[j])
+        #for i, j in enumerate(d):
+        #    # index, key, value
+        #    print(i, j, d[j])
 
     except Exception as e:
         raise Exception("ErrValFinFunc-1 : {0}".format(e))
